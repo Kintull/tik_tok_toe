@@ -1,0 +1,40 @@
+
+<main class="background">
+<section class="title">
+  <h1>Tik Tok Toe</h1>
+</section>
+
+<%= if @player_x != nil and @player_o == nil do %>
+<section class="display">
+  Player <%= @player_x %> is waiting for opponent
+</section>
+<% end %>
+
+<%= if @player_x != nil and @player_o != nil do %>
+<section class="display">
+  <%= @player_x %> VS <%= @player_o %> - <span class="display-player playerX">X</span>'s turn (<%= @player_x %>)
+</section>
+<% end %>
+
+<%= if @move_index != nil do %>
+  move_index is <%= @move_index %>
+<% end %>
+
+<section class="container">
+  <div class="tile"></div>
+  <div class="tile"></div>
+  <div class="tile"></div>
+  <div class="tile"></div>
+  <div class="tile"></div>
+  <div class="tile"></div>
+  <div class="tile"></div>
+  <div class="tile"></div>
+  <div class="tile"></div>
+</section>
+<section class="display announcer hide"></section>
+<section class="controls">
+  <button id="reset">Reset</button>
+</section>
+</main>
+
+
