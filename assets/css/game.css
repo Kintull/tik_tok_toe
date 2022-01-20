@@ -6,8 +6,9 @@
 
 .background {
     background-color: #12181B;
+    margin-left: auto;
+    margin-right: auto;
     height: 100vh;
-    width: 400px;
     padding-top: 1px;
 }
 

@@ -1,45 +1,55 @@
-
-<main class="background">
-<button phx-click="trigger_hello" >Hello</button>
-<section class="title">
-  <h1>Tik Tok Toe</h1>
-</section>
-
-<%= if @player_names_map.player_x == nil and @player_names_map.player_o == nil do %>
-  <section class="display">
-    Waiting for players. Type /join.
-  </section>
-<% end %>
-
-<%= if @player_names_map.player_x != nil and @player_names_map.player_o == nil do %>
-<section class="display">
-  Player <%= @player_names_map.player_x %> is waiting for an opponent. Type /join.
-</section>
-<% end %>
-
-<%= if @player_names_map.player_x != nil and @player_names_map.player_o != nil do %>
-  <%= if @winner == nil do%>
-    <section class="display">
-      <%= @player_names_map.player_x %> VS <%= @player_names_map.player_o %> -
-      <span class={"display-player " <> @player_style_map[@current_player]}><%= @player_mark_map[@current_player] %></span>'s turn (<%= @player_names_map[@current_player] %>)
+<main class="background" style="display: flex">
+  <div>
+    <section class="title">
+      <h1>Tik Tok Toe</h1>
     </section>
-  <% else %>
-    <section class="display">
-      Winner is <%= @winner %>!
+
+    <%= if @player_names_map.player_x == nil and @player_names_map.player_o == nil do %>
+      <section class="display">
+        Waiting for players. Type /join.
+      </section>
+    <% end %>
+
+    <%= if @player_names_map.player_x != nil and @player_names_map.player_o == nil do %>
+      <section class="display">
+        Player <%= @player_names_map.player_x %> is waiting for an opponent. Type /join.
+      </section>
+    <% end %>
+
+    <%= if @player_names_map.player_x != nil and @player_names_map.player_o != nil do %>
+      <%= if @winner == nil do%>
+      <section class="display">
+        <%= @player_names_map.player_x %> VS <%= @player_names_map.player_o %> -
+        <span class={"display-player " <> @player_style_map[@current_player]}><%= @player_mark_map[@current_player] %></span>'s turn (<%= @player_names_map[@current_player] %>)
+      </section>
+      <% else %>
+      <section class="display">
+        Winner is <%= @winner %>!
+      </section>
+      <% end %>
+    <% end %>
+
+    <section class="container">
+      <%= for {_index, value} <- @board do %>
+      <div class={"tile player" <> String.upcase(value)}><%= value %></div>
+      <% end %>
     </section>
-  <% end %>
-<% end %>
 
-<section class="container">
-  <%= for {_index, value} <- @board do %>
-    <div class={"tile player" <> String.upcase(value)}><%= value %></div>
-  <% end %>
-</section>
+    <section class="display announcer hide"></section>
 
-<section class="display announcer hide"></section>
-<section class="controls">
-  <button id="reset">Reset</button>
-</section>
+  </div>
+
+  <div style="width:200px;">
+    <p class="display">Top 10 players</p>
+    <ul>
+      <%= for player <- @top_players do %>
+        <li>
+          <p class="display"><%=player.name %>: <%=player.games_won%></p>
+        </li>
+      <% end %>
+
+    </ul>
+  </div>
 </main>
 
 

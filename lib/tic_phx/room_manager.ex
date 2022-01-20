@@ -82,12 +82,13 @@ defmodule Room do
   def handle_call({:make_turn, player, index}, _from, state) do
     with {:running, true} <- {:running, state.running},
          {:is_current_player, true} <- {:is_current_player, is_current_player(player, state)},
-         new_state <- make_turn(player, index, state),
-         %{winner: nil} <- new_state do
-      {:reply, :ok, new_state}
+         new_state <- make_turn(player, index, state) do
+      case new_state do
+        {:error, :space_already_occupied} ->  {:reply, {:error, :space_already_occupied}, state}
+        %{winner: nil} -> {:reply, :ok, new_state}
+        %{winner: winner} -> {:reply, {:ok, {:winner, winner}}, new_state}
+      end
     else
-      %{winner: player} -> {:reply, {:ok, {:winner, player}}, state}
-      {:error, :space_already_occupied} -> {:reply, {:error, :space_already_occupied}, state}
       {:running, false} -> {:reply, {:error, :battle_not_running}, state}
       {:is_current_player, false} -> {:reply, {:error, :not_current_player}, state}
     end

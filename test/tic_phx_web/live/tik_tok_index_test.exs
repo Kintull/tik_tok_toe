@@ -40,4 +40,11 @@ defmodule TicPhxWeb.TikTokIndexTest do
     assert render(view) =~ ~s(<div class="tile playerX">x</div>)
   end
 
+
+  test "print top" do
+    conn = build_conn()
+    assert %{} = Player.increment_wins("a")
+    {:ok, view, _html} = live(conn, "/tiktok")
+    assert render(view) =~ ~s(a: 1)
+  end
 end

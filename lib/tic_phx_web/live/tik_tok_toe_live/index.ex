@@ -42,6 +42,7 @@ defmodule TicPhxWeb.TikTokToeLive.Index do
     |> assign(:winner, Room.get_winner())
     |> assign(:player_style_map, player_style_map())
     |> assign(:player_mark_map, player_mark_map())
+    |> assign(:top_players, Player.get_top_players())
   end
 
   defp player_style_map(), do: %{player_x: "playerX", player_o: "playerO"}
