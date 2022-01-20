@@ -43,7 +43,7 @@ defmodule TicPhxWeb.CommentsController do
       notify_player_moved()
       json(conn, %{status: :move_successful})
     else
-      {:ok, {:player_won, player}} ->
+      {:ok, {:winner, player}} ->
         notify_player_moved()
         notify_player_won()
         json(conn, %{status: :player_won, player: player})
