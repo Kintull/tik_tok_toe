@@ -1,5 +1,6 @@
 
 <main class="background">
+<button phx-click="trigger_hello" >Hello</button>
 <section class="title">
   <h1>Tik Tok Toe</h1>
 </section>
@@ -16,21 +17,12 @@
 </section>
 <% end %>
 
-<%= if @move_index != nil do %>
-  move_index is <%= @move_index %>
-<% end %>
-
 <section class="container">
-  <div class="tile"></div>
-  <div class="tile"></div>
-  <div class="tile"></div>
-  <div class="tile"></div>
-  <div class="tile"></div>
-  <div class="tile"></div>
-  <div class="tile"></div>
-  <div class="tile"></div>
-  <div class="tile"></div>
+  <%= for {_index, value} <- @board do %>
+    <div class={"tile player" <> String.upcase(value)}><%= value %></div>
+  <% end %>
 </section>
+
 <section class="display announcer hide"></section>
 <section class="controls">
   <button id="reset">Reset</button>

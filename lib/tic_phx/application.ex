@@ -15,10 +15,11 @@ defmodule TicPhx.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: TicPhx.PubSub},
       # Start the Endpoint (http/https)
-      TicPhxWeb.Endpoint
+      TicPhxWeb.Endpoint,
       # Start a worker by calling: TicPhx.Worker.start_link(arg)
       # {TicPhx.Worker, arg}
     ]
+    |> maybe_add_room()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -32,5 +33,14 @@ defmodule TicPhx.Application do
   def config_change(changed, _new, removed) do
     TicPhxWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp maybe_add_room(children) do
+    if Mix.env() == :test do
+      children
+    else
+      children ++ [Room]
+    end
+
   end
 end

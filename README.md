@@ -1,6 +1,17 @@
-# TicPhx
+# TikTokToe
 
-To start your Phoenix server:
+Playing tik tak toe using comments in TikTok live stream.
+
+Commands:
+/join
+/move top-[l,c,r]
+/move mid-[l,c,r]
+/move top-[l,c,r]
+
+Webserver parses comment stream coming from Selenium parsing comments in TikTok live stream.
+Project is made using Phoenix LiveView.
+
+# To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.setup`

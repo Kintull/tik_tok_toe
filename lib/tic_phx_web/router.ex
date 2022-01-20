@@ -1,7 +1,7 @@
 defmodule TicPhxWeb.Router do
   use TicPhxWeb, :router
 
-  pipeline :browser do
+  pipeline :live_pipeline do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
@@ -10,17 +10,25 @@ defmodule TicPhxWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :comments do
+    plug :accepts, ["html"]
+    plug :fetch_session
+  end
+
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
   scope "/", TicPhxWeb do
-    pipe_through :browser
-
+    pipe_through :live_pipeline
     live "/tiktok", TikTokToeLive.Index, :index
+  end
+
+  scope "/", TicPhxWeb do
+    pipe_through :comments
     post "/comment", CommentsController, :index
     post "/reset", GameController, :reset
-    post "/move", GameController, :move
   end
 
   # Other scopes may use custom stacks.
@@ -39,7 +47,7 @@ defmodule TicPhxWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
-      pipe_through :browser
+      pipe_through :live_pipeline
 
       live_dashboard "/dashboard", metrics: TicPhxWeb.Telemetry
     end
@@ -51,7 +59,7 @@ defmodule TicPhxWeb.Router do
   # node running the Phoenix server.
   if Mix.env() == :dev do
     scope "/dev" do
-      pipe_through :browser
+      pipe_through :live_pipeline
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end

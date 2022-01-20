@@ -30,8 +30,8 @@ defmodule TicPhxWeb.TikTokIndexTest do
     {:ok, view, _html} = live(conn, "/tiktok")
     post(conn, "/comment", %{comment: "/join", nickname: "a"})
     post(conn, "/comment", %{comment: "/join", nickname: "b"})
-    post(conn, "/comment", %{comment: "/move top-l", nickname: "b"})
-    assert render(view) =~ "move_index is 0"
+    post(conn, "/comment", %{comment: "/move top-l", nickname: "a"})
+    assert render(view) =~ ~s(<div class="tile playerX">x</div>)
   end
 
 end

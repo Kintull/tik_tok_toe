@@ -14,13 +14,13 @@ defmodule TicPhxWeb.CommentsController do
          :ok <- Room.add_player(nickname),
          {:is_full, true} <- {:is_full, Room.is_full?()} do
 
-      notify_player_joined(Room.get_players())
+      notify_player_joined()
       Room.make_running()
       json(conn, %{status: :room_started})
 
     else
       {:is_full, false} ->
-        notify_player_joined(Room.get_players())
+        notify_player_joined()
         json(conn, %{status: :need_more_players})
 
       {:is_running, true} ->
@@ -37,11 +37,20 @@ defmodule TicPhxWeb.CommentsController do
   defp process_comment(conn, "/move " <> move, nickname) do
     with {:is_valid_move, true} <- {:is_valid_move, is_valid_move?(move)},
          {:is_running, true} <- {:is_running, Room.is_running?()},
-         {:is_current_player, true} <- {:is_current_player, Room.is_current_player?(nickname)} do
-      Room.make_turn(nickname)
-      notify_player_moved(move)
+         {:is_current_player, {true, player}} <- {:is_current_player, Room.is_current_player?(nickname)},
+         index <- move_to_position_index(move),
+         :ok <- Room.make_turn(player, index) do
+      notify_player_moved()
       json(conn, %{status: :move_successful})
     else
+      {:ok, {:player_won, player}} ->
+        notify_player_moved()
+        notify_player_won()
+        json(conn, %{status: :player_won, player: player})
+
+      {:error, :space_already_occupied} ->
+        json(conn, %{status: :space_already_occupied})
+
       {:is_valid_move, false} ->
         json(conn, %{status: :invalid_move})
 
@@ -67,15 +76,24 @@ defmodule TicPhxWeb.CommentsController do
     ]
   end
 
-  defp notify_player_joined(players_map) do
-    players = %{player_x: players_map.player_x, player_o: players_map.player_o}
-    PubSub.broadcast(TicPhx.PubSub, "room_updates", {:player_joined, players})
+  def move_to_position_index(move) do
+    %{"top-l" => 0, "top-c" => 1, "top-r" => 2,
+      "mid-l" => 3, "mid-c" => 4, "mid-r" => 5,
+      "bot-l" => 6, "bot-c" => 7, "bot-r" => 8}
+    |> Map.get(move)
   end
 
-  defp notify_player_moved(move) do
-    PubSub.broadcast(TicPhx.PubSub, "room_updates", {:player_moved, move})
+  defp notify_player_joined() do
+    PubSub.broadcast(TicPhx.PubSub, "room_updates", :player_joined)
   end
 
+  defp notify_player_moved() do
+    PubSub.broadcast(TicPhx.PubSub, "room_updates", :player_moved)
+  end
+
+  defp notify_player_won() do
+    PubSub.broadcast(TicPhx.PubSub, "room_updates", :player_won)
+  end
 
   defp already_joined?(nickname) do
     %{player_x: x, player_o: o} = Room.get_players()

@@ -3,11 +3,12 @@ defmodule TicPhxWeb.TikTokToeLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    players = Room.get_players()
     socket =
       socket
-      |> assign(player_x: nil)
-      |> assign(player_o: nil)
-      |> assign(move: nil)
+      |> assign(:player_x, players.player_x)
+      |> assign(:player_o, players.player_o)
+      |> assign(:board, Room.get_board())
 
     if connected?(socket), do: Phoenix.PubSub.subscribe(TicPhx.PubSub, "room_updates")
 
@@ -20,36 +21,24 @@ defmodule TicPhxWeb.TikTokToeLive.Index do
   end
 
   @impl true
-  def handle_info({:player_joined, players}, socket) do
+  def handle_info(:player_joined, socket) do
+    players = Room.get_players()
+
     socket =
       socket
       |> assign(player_x: players.player_x)
       |> assign(player_o: players.player_o)
 
+    IO.inspect("player_joined called")
     {:noreply, socket}
   end
 
-  def handle_info({:player_moved, move}, socket) do
+  def handle_info(:player_moved, socket) do
+    board = Room.get_board()
     socket =
       socket
-      |> assign(:move_index, move_to_position_index(move))
+      |> assign(:board, board)
 
     {:noreply, socket}
   end
-
-  defp move_to_position_index(move) do
-    %{"top-l" => 0, "top-c" => 1, "top-r" => 2,
-      "mid-l" => 3, "mid-c" => 4, "mid-r" => 5,
-      "bot-l" => 7, "bot-c" => 8, "bot-r" => 9}
-
-    Map.get()
-  end
-
-  #  @impl true
-  #  def handle_event("delete", %{"id" => id}, socket) do
-  #    tik_tok_toe = Games.get_tik_tok_toe!(id)
-  #    {:ok, _} = Games.delete_tik_tok_toe(tik_tok_toe)
-  #
-  #    {:noreply, assign(socket, :tiks, list_tiks())}
-  #  end
 end

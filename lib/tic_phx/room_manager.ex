@@ -26,12 +26,16 @@ defmodule Room do
   end
 
   # API
+  def update_state(params) do
+    GenServer.call(__MODULE__, {:update_state, params})
+  end
+
   def add_player(name) do
     GenServer.call(__MODULE__, {:add_player, name})
   end
 
-  def make_turn(name) do
-    GenServer.call(__MODULE__, {:make_turn, name})
+  def make_turn(player, index) do
+    GenServer.call(__MODULE__, {:make_turn, player, index})
   end
 
   def is_running?() do
@@ -50,6 +54,14 @@ defmodule Room do
     GenServer.call(__MODULE__, :get_players)
   end
 
+  def get_board() do
+    GenServer.call(__MODULE__, :get_board)
+  end
+
+  def get_winner() do
+    GenServer.call(__MODULE__, :get_winner)
+  end
+
   # Callbacks
 
   def handle_call({:add_player, name}, _from, state) do
@@ -62,12 +74,15 @@ defmodule Room do
     end
   end
 
-  def handle_call({:make_turn, name}, _from, state) do
+  def handle_call({:make_turn, player, index}, _from, state) do
     with {:running, true} <- {:running, state.running},
-         {:is_current_player, true} <- {:is_current_player, is_current_player(name, state)},
-         new_state <- make_turn(name, state) do
+         {:is_current_player, true} <- {:is_current_player, is_current_player(player, state)},
+         new_state <- make_turn(player, index, state),
+         %{winner: nil} <- new_state do
       {:reply, :ok, new_state}
     else
+      %{winner: player} -> {:reply, {:ok, {:winner, player}}, state}
+      {:error, :space_already_occupied} -> {:reply, {:error, :space_already_occupied}, state}
       {:running, false} -> {:reply, {:error, :battle_not_running}, state}
       {:is_current_player, false} -> {:reply, {:error, :not_current_player}, state}
     end
@@ -77,7 +92,7 @@ defmodule Room do
     with {:x_assigned, true} <- {:x_assigned, state.player_x != nil},
          {:o_assigned, true} <- {:o_assigned, state.player_o != nil},
          {:running, false} <- {:running, state.running} do
-      {:reply, :ok, %{state | running: true, current_player: state.player_x}}
+      {:reply, :ok, %{state | running: true, current_player: :player_x}}
     else
       _ ->
         {:reply, :ok, state}
@@ -92,6 +107,10 @@ defmodule Room do
     {:reply, Map.take(state, [:player_x, :player_o]), state}
   end
 
+  def handle_call(:get_board, _from, state) do
+    {:reply, state.board, state}
+  end
+
   def handle_call(:is_running, _from, state) do
     {:reply, state.running == true, state}
   end
@@ -100,8 +119,24 @@ defmodule Room do
     {:reply, is_full(state), state}
   end
 
+  def handle_call(:get_winner, _from, state) do
+    {:reply, state.winner, state}
+  end
+
+  def handle_call({:update_state, params}, _from, state) do
+    {:reply, :ok, Map.merge(state, params)}
+  end
+
+
   def handle_call({:is_current_player, name}, _from, state) do
-    {:reply, state.current_player == name, state}
+    case state do
+      %{current_player: :player_x, player_x: ^name} ->
+        {:reply, {true, :player_x}, state}
+      %{current_player: :player_o, player_o: ^name} ->
+        {:reply, {true, :player_o}, state}
+      _ ->
+        {:reply, false, state}
+    end
   end
 
   def handle_info({:baz, [value]}, state) do
@@ -125,16 +160,24 @@ defmodule Room do
     {:error, :full}
   end
 
-  defp is_current_player(name, %{player_x: name, current_player: name}), do: true
-  defp is_current_player(name, %{player_o: name, current_player: name}), do: true
+  defp is_current_player(player, %{current_player: player}), do: true
   defp is_current_player(_, _), do: false
 
-  defp make_turn(name, %{player_x: name, player_o: another_player, current_player: name} = state) do
-    %{state | current_player: another_player}
-  end
-
-  defp make_turn(name, %{player_o: name, player_x: another_player, current_player: name} = state) do
-    %{state | current_player: another_player}
+  defp make_turn(player, index, state) do
+    mark = if player == :player_x, do: "x", else: "o"
+    case RoomLogic.user_action(mark, index, state.board) do
+      {:ok, updated_board} ->
+        case RoomLogic.has_winner?(updated_board) do
+          {true, "x"} ->
+            %{state | board: updated_board, winner: :player_x, current_player: nil}
+          {true, "o"} ->
+            %{state | board: updated_board, winner: :player_o, current_player: nil}
+          false ->
+            %{state | board: updated_board, current_player: next_player(state.current_player)}
+        end
+      {:error, :space_already_occupied} ->
+        {:error, :space_already_occupied}
+    end
   end
 
   defp is_full(%{player_o: nil, player_x: _}), do: false
@@ -146,7 +189,12 @@ defmodule Room do
       player_x: nil,
       player_o: nil,
       running: false,
-      current_player: nil
+      current_player: nil,
+      board: RoomLogic.initial_board(),
+      winner: nil
     }
   end
+
+  defp next_player(:player_x), do: :player_o
+  defp next_player(:player_o), do: :player_x
 end
