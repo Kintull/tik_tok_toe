@@ -3,16 +3,9 @@ defmodule TicPhxWeb.TikTokToeLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    players = Room.get_players()
-    socket =
-      socket
-      |> assign(:player_x, players.player_x)
-      |> assign(:player_o, players.player_o)
-      |> assign(:board, Room.get_board())
-
     if connected?(socket), do: Phoenix.PubSub.subscribe(TicPhx.PubSub, "room_updates")
 
-    {:ok, socket}
+    {:ok, update_assigns(socket)}
   end
 
   @impl true
@@ -22,23 +15,35 @@ defmodule TicPhxWeb.TikTokToeLive.Index do
 
   @impl true
   def handle_info(:player_joined, socket) do
-    players = Room.get_players()
-
-    socket =
-      socket
-      |> assign(player_x: players.player_x)
-      |> assign(player_o: players.player_o)
-
-    IO.inspect("player_joined called")
-    {:noreply, socket}
+    {:noreply, update_assigns(socket)}
   end
 
   def handle_info(:player_moved, socket) do
-    board = Room.get_board()
-    socket =
-      socket
-      |> assign(:board, board)
-
-    {:noreply, socket}
+    {:noreply, update_assigns(socket)}
   end
+
+  def handle_info(:player_won, socket) do
+    Process.send_after(self(), :reset, 3000)
+    {:noreply, update_assigns(socket)}
+  end
+
+  def handle_info(:reset, socket) do
+    Room.reset()
+    {:noreply, update_assigns(socket)}
+  end
+
+  defp update_assigns(socket) do
+    players = Room.get_players()
+
+    socket
+    |> assign(:player_names_map, players)
+    |> assign(:board, Room.get_board())
+    |> assign(:current_player, Room.get_current_player())
+    |> assign(:winner, Room.get_winner())
+    |> assign(:player_style_map, player_style_map())
+    |> assign(:player_mark_map, player_mark_map())
+  end
+
+  defp player_style_map(), do: %{player_x: "playerX", player_o: "playerO"}
+  defp player_mark_map(), do: %{player_x: "X", player_o: "O"}
 end

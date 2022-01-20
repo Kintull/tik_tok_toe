@@ -5,16 +5,29 @@
   <h1>Tik Tok Toe</h1>
 </section>
 
-<%= if @player_x != nil and @player_o == nil do %>
+<%= if @player_names_map.player_x == nil and @player_names_map.player_o == nil do %>
+  <section class="display">
+    Waiting for players. Type /join to join :D
+  </section>
+<% end %>
+
+<%= if @player_names_map.player_x != nil and @player_names_map.player_o == nil do %>
 <section class="display">
-  Player <%= @player_x %> is waiting for opponent
+  Player <%= @player_names_map.player_x %> is waiting for an opponent. Type /join to join :D
 </section>
 <% end %>
 
-<%= if @player_x != nil and @player_o != nil do %>
-<section class="display">
-  <%= @player_x %> VS <%= @player_o %> - <span class="display-player playerX">X</span>'s turn (<%= @player_x %>)
-</section>
+<%= if @player_names_map.player_x != nil and @player_names_map.player_o != nil do %>
+  <%= if @winner == nil do%>
+    <section class="display">
+      <%= @player_names_map.player_x %> VS <%= @player_names_map.player_o %> -
+      <span class={"display-player " <> @player_style_map[@current_player]}><%= @player_mark_map[@current_player] %></span>'s turn (<%= @player_names_map[@current_player] %>)
+    </section>
+  <% else %>
+    <section class="display">
+      Winner is <%= @winner %>!
+    </section>
+  <% end %>
 <% end %>
 
 <section class="container">

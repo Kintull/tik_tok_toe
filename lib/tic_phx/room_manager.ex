@@ -50,6 +50,11 @@ defmodule Room do
     GenServer.call(__MODULE__, {:is_current_player, name})
   end
 
+  def get_current_player() do
+    GenServer.call(__MODULE__, :get_current_player)
+  end
+
+
   def get_players() do
     GenServer.call(__MODULE__, :get_players)
   end
@@ -109,6 +114,10 @@ defmodule Room do
 
   def handle_call(:get_board, _from, state) do
     {:reply, state.board, state}
+  end
+
+  def handle_call(:get_current_player, _from, state) do
+    {:reply, state.current_player, state}
   end
 
   def handle_call(:is_running, _from, state) do

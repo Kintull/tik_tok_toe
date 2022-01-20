@@ -7,11 +7,17 @@ defmodule TicPhxWeb.TikTokIndexTest do
     :ok
   end
 
+  test "test no players connected" do
+    conn = build_conn()
+    {:ok, view, _html} = live(conn, "/tiktok")
+    assert render(view) =~ "Waiting for players. Type /join to join :D"
+  end
+
   test "test one player connected" do
     conn = build_conn()
     {:ok, view, _html} = live(conn, "/tiktok")
     post(conn, "/comment", %{comment: "/join", nickname: "a"})
-    assert render(view) =~ "Player a is waiting for opponent"
+    assert render(view) =~ "Player a is waiting"
     refute render(view) =~ "&#39;s [a] turn"
   end
 
