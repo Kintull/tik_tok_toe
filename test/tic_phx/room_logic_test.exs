@@ -1,7 +1,6 @@
 defmodule TicPhx.RoomLogicTest do
   use ExUnit.Case
 
-
   test "user action" do
     {:ok, %{0 => "x"} = board} = RoomLogic.user_action("x", 0, board())
     {:error, :space_already_occupied} = RoomLogic.user_action("x", 0, board)

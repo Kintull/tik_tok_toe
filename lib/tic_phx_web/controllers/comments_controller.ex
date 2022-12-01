@@ -8,16 +8,14 @@ defmodule TicPhxWeb.CommentsController do
     process_comment(conn, comment, nickname)
   end
 
-  defp process_comment(conn, "/join", nickname) do
+  defp process_comment(conn, "join", nickname) do
     with {:is_running, false} <- {:is_running, Room.is_running?()},
          {:already_joined, false} <- {:already_joined, already_joined?(nickname)},
          :ok <- Room.add_player(nickname),
          {:is_full, true} <- {:is_full, Room.is_full?()} do
-
       notify_player_joined()
       Room.make_running()
       json(conn, %{status: :room_started})
-
     else
       {:is_full, false} ->
         notify_player_joined()
@@ -34,10 +32,11 @@ defmodule TicPhxWeb.CommentsController do
     end
   end
 
-  defp process_comment(conn, "/move " <> move, nickname) do
+  defp process_comment(conn, "move " <> move, nickname) do
     with {:is_valid_move, true} <- {:is_valid_move, is_valid_move?(move)},
          {:is_running, true} <- {:is_running, Room.is_running?()},
-         {:is_current_player, {true, player}} <- {:is_current_player, Room.is_current_player?(nickname)},
+         {:is_current_player, {true, player}} <-
+           {:is_current_player, Room.is_current_player?(nickname)},
          index <- move_to_position_index(move),
          :ok <- Room.make_turn(player, index) do
       notify_player_moved()
@@ -62,24 +61,36 @@ defmodule TicPhxWeb.CommentsController do
     end
   end
 
+  defp process_comment(conn, _, _) do
+    json(conn, %{status: :not_applicable})
+  end
+
   def is_valid_move?(move) do
     move in [
-      "top-l",
-      "top-c",
-      "top-r",
-      "mid-l",
-      "mid-c",
-      "mid-r",
-      "bot-l",
-      "bot-c",
-      "bot-r"
+      "top-left",
+      "top-center",
+      "top-right",
+      "middle-left",
+      "middle-center",
+      "middle-right",
+      "bottom-left",
+      "bottom-center",
+      "bottom-right"
     ]
   end
 
   def move_to_position_index(move) do
-    %{"top-l" => 0, "top-c" => 1, "top-r" => 2,
-      "mid-l" => 3, "mid-c" => 4, "mid-r" => 5,
-      "bot-l" => 6, "bot-c" => 7, "bot-r" => 8}
+    %{
+      "top-left" => 0,
+      "top-center" => 1,
+      "top-right" => 2,
+      "middle-left" => 3,
+      "middle-center" => 4,
+      "middle-right" => 5,
+      "bottom-left" => 6,
+      "bottom-center" => 7,
+      "bottom-right" => 8
+    }
     |> Map.get(move)
   end
 

@@ -7,19 +7,20 @@ defmodule TicPhx.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      # Start the Ecto repository
-      TicPhx.Repo,
-      # Start the Telemetry supervisor
-      TicPhxWeb.Telemetry,
-      # Start the PubSub system
-      {Phoenix.PubSub, name: TicPhx.PubSub},
-      # Start the Endpoint (http/https)
-      TicPhxWeb.Endpoint,
-      # Start a worker by calling: TicPhx.Worker.start_link(arg)
-      # {TicPhx.Worker, arg}
-    ]
-    |> maybe_add_room()
+    children =
+      [
+        # Start the Ecto repository
+        TicPhx.Repo,
+        # Start the Telemetry supervisor
+        TicPhxWeb.Telemetry,
+        # Start the PubSub system
+        {Phoenix.PubSub, name: TicPhx.PubSub},
+        # Start the Endpoint (http/https)
+        TicPhxWeb.Endpoint
+        # Start a worker by calling: TicPhx.Worker.start_link(arg)
+        # {TicPhx.Worker, arg}
+      ]
+      |> maybe_add_room()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -41,6 +42,5 @@ defmodule TicPhx.Application do
     else
       children ++ [Room]
     end
-
   end
 end

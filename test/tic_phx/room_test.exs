@@ -65,15 +65,21 @@ defmodule TicPhx.RoomTest do
     Room.update_state(%{
       running: true,
       board: %{
-        0 => "x", 1 => "x", 2 => "",
-        3 => "o", 4 => "o", 5 => "",
-        6 => "", 7 => "", 8 => ""
+        0 => "x",
+        1 => "x",
+        2 => "",
+        3 => "o",
+        4 => "o",
+        5 => "",
+        6 => "",
+        7 => "",
+        8 => ""
       },
       player_x: "a",
       player_o: "b",
       current_player: :player_x
-    }
-    )
+    })
+
     assert {:ok, {:winner, :player_x}} = Room.make_turn(:player_x, 2)
   end
 
@@ -81,15 +87,21 @@ defmodule TicPhx.RoomTest do
     Room.update_state(%{
       running: true,
       board: %{
-        0 => "x", 1 => "x", 2 => "",
-        3 => "o", 4 => "o", 5 => "",
-        6 => "", 7 => "", 8 => ""
+        0 => "x",
+        1 => "x",
+        2 => "",
+        3 => "o",
+        4 => "o",
+        5 => "",
+        6 => "",
+        7 => "",
+        8 => ""
       },
       player_x: "a",
       player_o: "b",
       current_player: :player_o
-    }
-    )
+    })
+
     assert {:ok, {:winner, :player_o}} = Room.make_turn(:player_o, 5)
   end
 
@@ -116,5 +128,4 @@ defmodule TicPhx.RoomTest do
   test "get_winner" do
     assert nil == Room.get_winner()
   end
-
 end

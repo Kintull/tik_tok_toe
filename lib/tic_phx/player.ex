@@ -14,6 +14,7 @@ defmodule Player do
     case get_player(name) do
       nil ->
         Repo.insert!(%Player{name: name, games_won: 1})
+
       %Player{} = player ->
         Ecto.Changeset.change(player, %{games_won: player.games_won + 1})
         |> Repo.update!()
@@ -21,7 +22,12 @@ defmodule Player do
   end
 
   def get_top_players(limit \\ 10) do
-    query = from p in Player, order_by: [desc: :games_won], limit: ^limit, select: map(p, [:name, :games_won])
+    query =
+      from p in Player,
+        order_by: [desc: :games_won],
+        limit: ^limit,
+        select: map(p, [:name, :games_won])
+
     Repo.all(query)
   end
 

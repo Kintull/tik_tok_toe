@@ -14,6 +14,6 @@ defmodule PlayerTest do
     Repo.insert!(%Player{name: "a", games_won: 10})
     Repo.insert!(%Player{name: "b", games_won: 6})
     Repo.insert!(%Player{name: "c", games_won: 1})
-    assert  [%{games_won: 10, name: "a"}, %{games_won: 6, name: "b"}] = Player.get_top_players(2)
+    assert [%{games_won: 10, name: "a"}, %{games_won: 6, name: "b"}] = Player.get_top_players(2)
   end
 end

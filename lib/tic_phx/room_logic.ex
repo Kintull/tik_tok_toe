@@ -13,14 +13,17 @@ defmodule RoomLogic do
   end
 
   def has_winner?(board) do
-    win = Enum.filter(winning_conditions(),
-      fn [a,b,c] ->
-        match?(%{^a => "x", ^b => "x", ^c => "x"}, board)
-        || match?(%{^a => "o", ^b => "o", ^c => "o"}, board)
-      end)
+    win =
+      Enum.filter(
+        winning_conditions(),
+        fn [a, b, c] ->
+          match?(%{^a => "x", ^b => "x", ^c => "x"}, board) ||
+            match?(%{^a => "o", ^b => "o", ^c => "o"}, board)
+        end
+      )
 
     case win do
-      [[a,_b,_c]] -> {true, board[a]}
+      [[a, _b, _c]] -> {true, board[a]}
       _ -> false
     end
   end
@@ -48,9 +51,15 @@ defmodule RoomLogic do
 
   def initial_board() do
     %{
-      0 => "", 1 => "", 2 => "",
-      3 => "", 4 => "", 5 => "",
-      6 => "", 7 => "", 8 => ""
+      0 => "",
+      1 => "",
+      2 => "",
+      3 => "",
+      4 => "",
+      5 => "",
+      6 => "",
+      7 => "",
+      8 => ""
     }
   end
 end

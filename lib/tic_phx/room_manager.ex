@@ -54,7 +54,6 @@ defmodule Room do
     GenServer.call(__MODULE__, :get_current_player)
   end
 
-
   def get_players() do
     GenServer.call(__MODULE__, :get_players)
   end
@@ -84,7 +83,7 @@ defmodule Room do
          {:is_current_player, true} <- {:is_current_player, is_current_player(player, state)},
          new_state <- make_turn(player, index, state) do
       case new_state do
-        {:error, :space_already_occupied} ->  {:reply, {:error, :space_already_occupied}, state}
+        {:error, :space_already_occupied} -> {:reply, {:error, :space_already_occupied}, state}
         %{winner: nil} -> {:reply, :ok, new_state}
         %{winner: winner} -> {:reply, {:ok, {:winner, winner}}, new_state}
       end
@@ -137,13 +136,14 @@ defmodule Room do
     {:reply, :ok, Map.merge(state, params)}
   end
 
-
   def handle_call({:is_current_player, name}, _from, state) do
     case state do
       %{current_player: :player_x, player_x: ^name} ->
         {:reply, {true, :player_x}, state}
+
       %{current_player: :player_o, player_o: ^name} ->
         {:reply, {true, :player_o}, state}
+
       _ ->
         {:reply, false, state}
     end
@@ -175,16 +175,20 @@ defmodule Room do
 
   defp make_turn(player, index, state) do
     mark = if player == :player_x, do: "x", else: "o"
+
     case RoomLogic.user_action(mark, index, state.board) do
       {:ok, updated_board} ->
         case RoomLogic.has_winner?(updated_board) do
           {true, "x"} ->
             %{state | board: updated_board, winner: :player_x, current_player: nil}
+
           {true, "o"} ->
             %{state | board: updated_board, winner: :player_o, current_player: nil}
+
           false ->
             %{state | board: updated_board, current_player: next_player(state.current_player)}
         end
+
       {:error, :space_already_occupied} ->
         {:error, :space_already_occupied}
     end

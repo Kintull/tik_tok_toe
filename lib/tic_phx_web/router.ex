@@ -15,7 +15,6 @@ defmodule TicPhxWeb.Router do
     plug :fetch_session
   end
 
-
   pipeline :api do
     plug :accepts, ["json"]
   end

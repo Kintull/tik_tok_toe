@@ -6,13 +6,13 @@
 
     <%= if @player_names_map.player_x == nil and @player_names_map.player_o == nil do %>
       <section class="display">
-        Waiting for players. Type /join.
+        Waiting for players. Type join.
       </section>
     <% end %>
 
     <%= if @player_names_map.player_x != nil and @player_names_map.player_o == nil do %>
       <section class="display">
-        Player <%= @player_names_map.player_x %> is waiting for an opponent. Type /join.
+        Player <%= @player_names_map.player_x %> is waiting for an opponent. Type join.
       </section>
     <% end %>
 
@@ -21,6 +21,7 @@
       <section class="display">
         <%= @player_names_map.player_x %> VS <%= @player_names_map.player_o %> -
         <span class={"display-player " <> @player_style_map[@current_player]}><%= @player_mark_map[@current_player] %></span>'s turn (<%= @player_names_map[@current_player] %>)
+        <span class="display">To make a move type in the comments: move [top | middle | bottom]-[left | center | right]</span>
       </section>
       <% else %>
       <section class="display">
